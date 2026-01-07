@@ -1,80 +1,112 @@
-pragma solidity ^0.4.17;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.17;
 
+/* =========================================================
+ * Campaign Factory
+ * =========================================================
+ */
 contract CampaignFactory {
     address[] public deployedCampaigns;
 
     function createCampaign(uint minimum) public {
-        address newCampaign = new Campaign(minimum, msg.sender);
+        address newCampaign = address(
+            new Campaign(minimum, msg.sender)
+        );
         deployedCampaigns.push(newCampaign);
     }
 
-    function getDeployedCampaigns() public view returns (address[]) {
+    function getDeployedCampaigns()
+        public
+        view
+        returns (address[] memory)
+    {
         return deployedCampaigns;
     }
 }
 
+/* =========================================================
+ * Campaign
+ * =========================================================
+ */
 contract Campaign {
     struct Request {
         string description;
         uint value;
-        address recipient;
+        address payable recipient;
         bool complete;
         uint approvalCount;
         mapping(address => bool) approvals;
     }
 
-    Request[] public requests;
     address public manager;
     uint public minimumContribution;
-    mapping(address => bool) public approvers;
     uint public approversCount;
 
-    modifier restricted() {
-        require(msg.sender == manager);
-        _;
-    }
+    mapping(address => bool) public approvers;
+    Request[] public requests;
 
-    function Campaign(uint minimum, address creator) public {
-        manager = creator;
+    constructor(uint minimum, address managerAddress) {
+        manager = managerAddress;
         minimumContribution = minimum;
     }
 
-    function contribute() public payable {
-        require(msg.value > minimumContribution);
-
-        approvers[msg.sender] = true;
-        approversCount++;
+    modifier restricted() {
+        require(msg.sender == manager, "Only manager allowed");
+        _;
     }
 
-    function createRequest(string description, uint value, address recipient) public restricted {
-        Request memory newRequest = Request({
-           description: description,
-           value: value,
-           recipient: recipient,
-           complete: false,
-           approvalCount: 0
-        });
+    function contribute() public payable {
+        require(
+            msg.value >= minimumContribution,
+            "Contribution too small"
+        );
 
-        requests.push(newRequest);
+        if (!approvers[msg.sender]) {
+            approvers[msg.sender] = true;
+            approversCount++;
+        }
+    }
+
+    function createRequest(
+        string calldata description,
+        uint value,
+        address payable recipient
+    ) public restricted {
+        Request storage r = requests.push();
+        r.description = description;
+        r.value = value;
+        r.recipient = recipient;
+        r.complete = false;
+        r.approvalCount = 0;
     }
 
     function approveRequest(uint index) public {
-        Request storage request = requests[index];
+        require(approvers[msg.sender], "Not an approver");
 
-        require(approvers[msg.sender]);
-        require(!request.approvals[msg.sender]);
+        Request storage myRequest = requests[index];
 
-        request.approvals[msg.sender] = true;
-        request.approvalCount++;
+        require(
+            !myRequest.approvals[msg.sender],
+            "Already voted"
+        );
+
+        myRequest.approvals[msg.sender] = true;
+        myRequest.approvalCount++;
     }
 
-    function finalizeRequest(uint index) public restricted {
-        Request storage request = requests[index];
+    function finalizeRequest(uint index)
+        public
+        restricted
+    {
+        Request storage myRequest = requests[index];
 
-        require(request.approvalCount > (approversCount / 2));
-        require(!request.complete);
+        require(!myRequest.complete, "Already finalized");
+        require(
+            myRequest.approvalCount > approversCount / 2,
+            "Not enough approvals"
+        );
 
-        request.recipient.transfer(request.value);
-        request.complete = true;
+        myRequest.recipient.transfer(myRequest.value);
+        myRequest.complete = true;
     }
 }
