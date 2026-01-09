@@ -39,29 +39,31 @@ const input = {
 const output = solc.compile(JSON.stringify(input));
 const compiled = JSON.parse(output);
 
-fs.ensureDirSync(buildPath);
-
 // Optional debug
 if (compiled.errors) {
   compiled.errors.forEach((err) => console.error(err.formattedMessage));
 }
 
 // Extract contracts
-const { CampaignFactory, Campaign } = compiled.contracts["Campaign.sol"];
+const contracts = compiled.contracts["Campaign.sol"];
+if (!contracts) throw new Error("No contracts found in compiled output");
 
-// Safety checks
-if (!CampaignFactory || !Campaign) {
-  throw new Error("Contracts not found. Check Solidity version or file name.");
+// Write each contract to a separate JSON file in the build folder
+for (let contractName in contracts) {
+  const contract = contracts[contractName];
+  const filePath = path.resolve(buildPath, `${contractName}.json`);
+  fs.writeFileSync(
+    filePath,
+    JSON.stringify(
+      {
+        abi: contract.abi,
+        bytecode: contract.evm.bytecode.object,
+      },
+      null,
+      2 // pretty print with 2 spaces
+    )
+  );
+  console.log(`Saved ${contractName}.json in build folder`);
 }
 
-// Export both contracts
-module.exports = {
-  CampaignFactory: {
-    abi: CampaignFactory.abi,
-    bytecode: CampaignFactory.evm.bytecode.object,
-  },
-  Campaign: {
-    abi: Campaign.abi,
-    bytecode: Campaign.evm.bytecode.object,
-  },
-};
+console.log("Compilation successful!");
