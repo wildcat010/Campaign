@@ -2,14 +2,23 @@ import React from "react";
 import { MenuMenu, MenuItem, Menu } from "semantic-ui-react";
 import styles from "./Header.module.css";
 
+import { Link } from "./../routes";
+
 const Header = (props) => {
   return (
     <div className={styles.menu}>
       <Menu>
-        <MenuItem name="ListCampaigns">Found Campaigns</MenuItem>
-        <MenuMenu position="right"></MenuMenu>
-        <MenuItem name="Campaigns">Campaigns</MenuItem>
-        <MenuItem>Add a Campaign</MenuItem>
+        <Link route="/">
+          <a className="item">Home</a>
+        </Link>
+        <MenuMenu position="right">
+          <Link route="/">
+            <a className="item">Campaigns</a>
+          </Link>
+          <Link route="/campaigns/new">
+            <a className="item">Campaigns</a>
+          </Link>
+        </MenuMenu>
       </Menu>
     </div>
   );

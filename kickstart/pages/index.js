@@ -3,6 +3,8 @@ import instance from "../ethereum/factory";
 import { Card, Button, Icon } from "semantic-ui-react";
 import Layout from "./../components/Layout";
 
+import { Link } from "./../routes";
+
 import "semantic-ui-css/semantic.min.css"; // ✅ Semantic UI CSS
 
 const CampaignIndex = () => {
@@ -39,7 +41,11 @@ const CampaignIndex = () => {
     const items = campaigns.map((address) => {
       return {
         header: address,
-        description: <a>View Campaign</a>,
+        description: (
+          <Link route={`/campaigns/${address}`}>
+            <a>View Campaign</a>
+          </Link>
+        ),
         fluid: true,
       };
     });
@@ -50,11 +56,14 @@ const CampaignIndex = () => {
     <Layout>
       <div>
         <h2>Open Campaigns</h2>
-
-        <Button icon labelPosition="right" primary floated="right">
-          Add Campaign
-          <Icon name="add circle" />
-        </Button>
+        <Link route="/campaigns/new">
+          <a>
+            <Button icon labelPosition="right" primary floated="right">
+              Add Campaign
+              <Icon name="add circle" />
+            </Button>
+          </a>
+        </Link>
         {renderCampaigns()}
       </div>
     </Layout>
