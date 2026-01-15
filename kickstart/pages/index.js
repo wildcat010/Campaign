@@ -17,10 +17,14 @@ const CampaignIndex = () => {
       try {
         let campaigns = await instance.methods.getDeployedCampaigns().call();
 
+        //let campaigns = ["01", "02", "03"];
+
         setCampaigns(campaigns);
       } catch (err) {
         console.error(err);
-        setError("Failed to load campaigns");
+        const message =
+          err?.message || err?.data?.message || JSON.stringify(err);
+        setError("Failed to load campaigns" + message);
       } finally {
         setLoading(false);
       }

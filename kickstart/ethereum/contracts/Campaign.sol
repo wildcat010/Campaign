@@ -107,6 +107,16 @@ contract Campaign {
         );
     }
 
+    function getCampaignDetails() public view returns(uint,uint,uint,uint,address){
+        
+        return(minimumContribution, address(this).balance, requests.length, approversCount,manager);
+    }
+
+    function getRequestCount() public view returns(uint){
+        
+        return(requests.length);
+    }
+
     function approveRequest(uint index) public {
         require(approvers[msg.sender], "Not an approver");
         require(!approvals[index][msg.sender], "Already voted");
