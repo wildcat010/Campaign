@@ -10,10 +10,10 @@ import "semantic-ui-css/semantic.min.css"; // ✅ Semantic UI CSS
 import { Router } from "./../routes";
 
 const ContributeForm = (props) => {
-  console.log("props", props);
+  const { minimumContribution, address, onContributionSuccess } = props;
 
   const [contribution, setContribution] = useState(props.minimumContribution);
-  const [address, setAddress] = useState(props.address);
+
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,14 +25,6 @@ const ContributeForm = (props) => {
     setErrorMessage("");
 
     try {
-      const value = parseInt(contribution);
-
-      if (isNaN(value) || value >= props.minimumContribution) {
-        throw new Error(
-          "Contribution should be superior to minimum contribution."
-        );
-      }
-
       const campaignContract = Campaign(address);
 
       const accounts = await web3.eth.getAccounts();
@@ -40,6 +32,10 @@ const ContributeForm = (props) => {
       await campaignContract.methods
         .contribute()
         .send({ value: contribution, from: accounts[0] });
+
+      if (onContributionSuccess) {
+        await onContributionSuccess();
+      }
     } catch (err) {
       setError(true);
       setErrorMessage(err.message);
@@ -55,7 +51,6 @@ const ContributeForm = (props) => {
           <label>Contribution value: {contribution}</label>
           <Input
             placeholder="Contribution value"
-            defaultValue={contribution}
             icon="ethereum"
             iconPosition="left"
             type="number"

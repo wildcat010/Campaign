@@ -72,7 +72,7 @@ const CampaignShow = (props) => {
       },
       {
         header: campaignDetails.requestsCount,
-        description: "Number of requests to create the campaign.",
+        description: "Number of requests to create the campaign",
         meta: "Number",
       },
       {
@@ -91,6 +91,7 @@ const CampaignShow = (props) => {
         <ContributeForm
           minimumContribution={campaignDetails.minimumContribution}
           address={address}
+          onContributionSuccess={loadCampaignDetails}
         ></ContributeForm>
       </div>
     </Layout>
