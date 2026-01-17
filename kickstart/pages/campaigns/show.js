@@ -3,9 +3,13 @@ import { useRouter } from "next/router";
 import Layout from "./../../components/Layout";
 import "semantic-ui-css/semantic.min.css"; // ✅ Semantic UI CSS
 import Campaign from "./../../ethereum/campaign";
-import { CardGroup } from "semantic-ui-react";
+import { CardGroup,Grid, Button } from "semantic-ui-react";
 import web3 from "./../../ethereum/web3";
 import ContributeForm from "../../ethereum/ContributeForm";
+import { Link } from "./../../routes";
+
+
+
 
 const CampaignShow = (props) => {
   const [address, setAddress] = useState(null);
@@ -16,15 +20,16 @@ const CampaignShow = (props) => {
     approversCount: "0",
     manager: "",
   });
-  const router = useRouter();
+    const router = useRouter();
 
   useEffect(() => {
-    if (!router.isReady) return;
 
-    const pathParts = router.asPath.split("/");
-    const addr = pathParts[pathParts.length - 1]; // get last segment
+  
+  const { address } = router.query;
 
-    setAddress(addr);
+  console.log(address);
+
+    setAddress(address);
   }, [router.isReady, router.asPath]);
 
   useEffect(() => {
@@ -86,16 +91,44 @@ const CampaignShow = (props) => {
 
   return (
     <Layout>
-      <div>{renderCards()}</div>
-      <div>
-        <ContributeForm
-          minimumContribution={campaignDetails.minimumContribution}
-          address={address}
-          onContributionSuccess={loadCampaignDetails}
-        ></ContributeForm>
-      </div>
+    <Grid>
+       <Grid.Row>
+      <Grid.Column width={10}>
+       
+        {renderCards()}
+
+      </Grid.Column>
+      
+        <Grid.Column width={6}>
+          <ContributeForm
+            minimumContribution={campaignDetails.minimumContribution}
+            address={address}
+            onContributionSuccess={loadCampaignDetails}
+          ></ContributeForm>
+        </Grid.Column>
+      </Grid.Row>
+     <Grid.Row>
+        <Grid.Column>
+          <Link route={`/campaigns/${address}/requests`}>
+            <Button primary>View Requests</Button>
+          </Link>
+        </Grid.Column>
+     </Grid.Row>
+    </Grid>
     </Layout>
   );
 };
+
+// This runs server-side on every request
+export async function getServerSideProps(context) {
+  const { address } = context.query;
+  const extraParam = context.query.foo || "defaultValue";
+
+  return {
+    props: {
+      
+    },
+  };
+}
 
 export default CampaignShow;
