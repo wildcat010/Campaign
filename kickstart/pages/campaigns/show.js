@@ -12,7 +12,7 @@ import { Link } from "./../../routes";
 
 
 const CampaignShow = (props) => {
-  const [address, setAddress] = useState(null);
+
   const [campaignDetails, setCampaignDetails] = useState({
     minimumContribution: "0",
     balance: "0",
@@ -22,15 +22,10 @@ const CampaignShow = (props) => {
   });
     const router = useRouter();
 
-  useEffect(() => {
 
-  
   const { address } = router.query;
 
-  console.log(address);
-
-    setAddress(address);
-  }, [router.isReady, router.asPath]);
+  
 
   useEffect(() => {
     if (!address) return;
@@ -119,16 +114,5 @@ const CampaignShow = (props) => {
   );
 };
 
-// This runs server-side on every request
-export async function getServerSideProps(context) {
-  const { address } = context.query;
-  const extraParam = context.query.foo || "defaultValue";
-
-  return {
-    props: {
-      
-    },
-  };
-}
 
 export default CampaignShow;

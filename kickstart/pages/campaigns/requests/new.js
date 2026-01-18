@@ -23,12 +23,12 @@ const { address } = router.query;
   }
 
   const toBytes32 = (text) => {
-  return web3.utils.padRight(web3.utils.utf8ToHex(text), 64);
-}
+    return web3.utils.padRight(web3.utils.utf8ToHex(text), 64);
+  }
 
-const bytes32ToString = (bytes32Str) => {
-  return web3.utils.hexToUtf8(bytes32Str).replace(/\0+$/, "");
-}
+  const bytes32ToString = (bytes32Str) => {
+    return web3.utils.hexToUtf8(bytes32Str).replace(/\0+$/, "");
+  }
 
   const onSubmit = async (event) => {
     event.preventDefault();
