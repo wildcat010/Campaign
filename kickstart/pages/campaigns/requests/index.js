@@ -4,32 +4,63 @@ import { Button, Grid } from "semantic-ui-react";
 import Layout from "./../../../components/Layout";
 import { Link } from "./../../../routes";
 import { useRouter } from "next/router";
+import web3 from "./../../../ethereum/web3";
+import {
+  TableRow,
+  TableHeaderCell,
+  TableHeader,
+  TableFooter,
+  TableCell,
+  TableBody,
+  MenuItem,
+  Icon,
+  Label,
+  Menu,
+  Table,
+} from "semantic-ui-react";
+import RequestRow from "./../../../components/RequestRow";
 
 const RequestIndex = () => {
-  const [campaignRequestsCount, setCampaignRequestsCount] = useState("0");
+  const [requests, setRequests] = useState([]);
+  const [campaignContract, setCampaignContract] = useState(null);
 
   const router = useRouter();
   const { address } = router.query;
 
-
   const toBytes32 = (text) => {
     return web3.utils.padRight(web3.utils.utf8ToHex(text), 64);
-  }
+  };
 
   const bytes32ToString = (bytes32Str) => {
-    return web3.utils.hexToUtf8(bytes32Str).replace(/\0+$/, "");
-  }
+    return web3.utils.toAscii(bytes32Str).replace(/\0/g, "");
+  };
 
- 
   // Standalone async function
   const loadRequests = async (campaignAddress) => {
     if (!campaignAddress) return;
 
     try {
-      const campaignContract = Campaign(campaignAddress);
-      const requestCount = await campaignContract.methods.getRequestCount().call();
-      setCampaignRequestsCount(requestCount.toString()); // Convert BigInt to string
-      console.log("Request Count:", requestCount.toString());
+      const contract = Campaign(campaignAddress); // LOCAL
+      setCampaignContract(contract); // store for children
+
+      const campaignRequestsCount = await campaignContract.methods
+        .getRequestCount()
+        .call()
+        .toString();
+
+      console.log("Request Count:", campaignRequestsCount);
+
+      const loadedRequests = await Promise.all(
+        Array(campaignRequestsCount)
+          .fill()
+          .map(async (element, index) => {
+            return await campaignContract.methods.requests(index).call();
+          }),
+      );
+
+      setRequests(loadedRequests);
+
+      console.log(loadedRequests);
     } catch (err) {
       console.error("Failed to load request count:", err);
     }
@@ -38,26 +69,32 @@ const RequestIndex = () => {
   // Effect runs when the address becomes available
   useEffect(() => {
     if (!address) return;
+    console.log("loadRequests");
     loadRequests(address);
   }, [address]);
 
-    // Effect runs when the address becomes available
-  useEffect(async () => {
-    console.log("campaignRequestsCount trigger")
+  if (!address)
+    return (
+      <Layout>
+        <p>Loading...</p>
+      </Layout>
+    );
 
-    const campaignContract = Campaign(address);
+  const { Header, Row, HeaderCell, Body } = Table;
 
-    console.log("campaignRequestsCount",campaignRequestsCount)
-
-    for(let i = 0;i<campaignRequestsCount;i++){
-
-      const requestCount = await campaignContract.methods.requests(i).call();
-      console.log(requestCount)
-    }
-    
-  }, [campaignRequestsCount]);
-
-  if (!address) return <Layout><p>Loading...</p></Layout>;
+  const renderRow = () => {
+    return requests.map((request, index) => {
+      return (
+        <RequestRow
+          request={request}
+          key={index}
+          id={index}
+          address={address}
+          campaign={campaignContract}
+        ></RequestRow>
+      );
+    });
+  };
 
   return (
     <Layout>
@@ -66,7 +103,20 @@ const RequestIndex = () => {
       <Grid>
         <Grid.Row>
           <Grid.Column width={10}>
-            <p>Number of Requests: {campaignRequestsCount}</p>
+            <Table>
+              <Header>
+                <Row>
+                  <HeaderCell>ID</HeaderCell>
+                  <HeaderCell>Description</HeaderCell>
+                  <HeaderCell>Amount</HeaderCell>
+                  <HeaderCell>Recipient</HeaderCell>
+                  <HeaderCell>Approval Count</HeaderCell>
+                  <HeaderCell>Approve</HeaderCell>
+                  <HeaderCell>Finalize</HeaderCell>
+                </Row>
+              </Header>
+              <Body>{renderRow()}</Body>
+            </Table>
           </Grid.Column>
 
           <Grid.Column width={6}>
