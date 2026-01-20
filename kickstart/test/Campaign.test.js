@@ -1,5 +1,5 @@
 // test/Campaign.test.js
-const Web3 = require("web3").default;; // Correct import
+const Web3 = require("web3").default; // Correct import
 const ganache = require("ganache");
 const assert = require("assert");
 
@@ -66,42 +66,38 @@ describe("Campaign Contract", () => {
   });
 
   it("creates a request", async () => {
-
-        console.log("1");
-       await campaign.methods
+    await campaign.methods
       .createRequest(
-       toBytes32("Buy materials"),
+        toBytes32("Buy materials"),
         web3.utils.toWei("1", "ether"),
-        accounts[0]
+        accounts[0],
       )
       .send({ from: accounts[0], gas: 3000000 });
 
-        const result = await campaign.methods.getRequest(0).call();
+    const result = await campaign.methods.getRequest(0).call();
 
-        const description = bytes32ToString(result.description);
+    const description = bytes32ToString(result.description);
 
-        const request = {
-          description: description,
-          value: result.value,
-          recipient: result.recipient,
-          complete: result.complete,
-          approvalCount: result.approvalCount,
-        };
+    const request = {
+      description: description,
+      value: result.value,
+      recipient: result.recipient,
+      complete: result.complete,
+      approvalCount: result.approvalCount,
+    };
 
-        assert.equal(request.description, "Buy materials");
-        assert.equal(request.value, web3.utils.toWei("1", "ether"));
-        assert.equal(request.recipient, accounts[0]);
-        assert.equal(request.complete, false);
-        assert.equal(request.approvalCount, "0");
-   
-});
+    assert.equal(request.description, "Buy materials");
+    assert.equal(request.value, web3.utils.toWei("1", "ether"));
+    assert.equal(request.recipient, accounts[0]);
+    assert.equal(request.complete, false);
+    assert.equal(request.approvalCount, "0");
+  });
 
-function toBytes32(text) {
-  return web3.utils.padRight(web3.utils.utf8ToHex(text), 64);
-}
+  function toBytes32(text) {
+    return web3.utils.padRight(web3.utils.utf8ToHex(text), 64);
+  }
 
-function bytes32ToString(bytes32Str) {
-  return web3.utils.hexToUtf8(bytes32Str).replace(/\0+$/, "");
-}
-
+  function bytes32ToString(bytes32Str) {
+    return web3.utils.hexToUtf8(bytes32Str).replace(/\0+$/, "");
+  }
 });

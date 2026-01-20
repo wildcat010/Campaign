@@ -43,18 +43,16 @@ const RequestIndex = () => {
       const contract = Campaign(campaignAddress); // LOCAL
       setCampaignContract(contract); // store for children
 
-      const campaignRequestsCount = await campaignContract.methods
+      const campaignRequestsCount = await contract.methods
         .getRequestCount()
         .call()
         .toString();
-
-      console.log("Request Count:", campaignRequestsCount);
 
       const loadedRequests = await Promise.all(
         Array(campaignRequestsCount)
           .fill()
           .map(async (element, index) => {
-            return await campaignContract.methods.requests(index).call();
+            return await contract.methods.requests(index).call();
           }),
       );
 
@@ -69,7 +67,6 @@ const RequestIndex = () => {
   // Effect runs when the address becomes available
   useEffect(() => {
     if (!address) return;
-    console.log("loadRequests");
     loadRequests(address);
   }, [address]);
 
@@ -99,10 +96,16 @@ const RequestIndex = () => {
   return (
     <Layout>
       <h3>Requests</h3>
-
+      {address && (
+        <Link route={`/campaigns/${address}/requests/new`}>
+          <Button primary style={{ marginBottom: "20px" }}>
+            Create Request
+          </Button>
+        </Link>
+      )}
       <Grid>
         <Grid.Row>
-          <Grid.Column width={10}>
+          <Grid.Column width={16}>
             <Table>
               <Header>
                 <Row>
@@ -117,14 +120,6 @@ const RequestIndex = () => {
               </Header>
               <Body>{renderRow()}</Body>
             </Table>
-          </Grid.Column>
-
-          <Grid.Column width={6}>
-            {address && (
-              <Link route={`/campaigns/${address}/requests/new`}>
-                <Button primary>Create Request</Button>
-              </Link>
-            )}
           </Grid.Column>
         </Grid.Row>
       </Grid>

@@ -3,16 +3,12 @@ import { useRouter } from "next/router";
 import Layout from "./../../components/Layout";
 import "semantic-ui-css/semantic.min.css"; // ✅ Semantic UI CSS
 import Campaign from "./../../ethereum/campaign";
-import { CardGroup,Grid, Button } from "semantic-ui-react";
+import { CardGroup, Grid, Button } from "semantic-ui-react";
 import web3 from "./../../ethereum/web3";
 import ContributeForm from "../../ethereum/ContributeForm";
 import { Link } from "./../../routes";
 
-
-
-
 const CampaignShow = (props) => {
-
   const [campaignDetails, setCampaignDetails] = useState({
     minimumContribution: "0",
     balance: "0",
@@ -20,12 +16,9 @@ const CampaignShow = (props) => {
     approversCount: "0",
     manager: "",
   });
-    const router = useRouter();
-
+  const router = useRouter();
 
   const { address } = router.query;
-
-  
 
   useEffect(() => {
     if (!address) return;
@@ -33,9 +26,8 @@ const CampaignShow = (props) => {
   }, [address]);
 
   const loadCampaignDetails = async () => {
-    console.log("loadCampaignDetails");
     if (!address) return;
-    console.log("loadCampaignDetails", address);
+
     const campaignContract = Campaign(address);
     const compaignDetails = await campaignContract.methods
       .getCampaignDetails()
@@ -86,33 +78,28 @@ const CampaignShow = (props) => {
 
   return (
     <Layout>
-    <Grid>
-       <Grid.Row>
-      <Grid.Column width={10}>
-       
-        {renderCards()}
+      <Grid>
+        <Grid.Row>
+          <Grid.Column width={10}>{renderCards()}</Grid.Column>
 
-      </Grid.Column>
-      
-        <Grid.Column width={6}>
-          <ContributeForm
-            minimumContribution={campaignDetails.minimumContribution}
-            address={address}
-            onContributionSuccess={loadCampaignDetails}
-          ></ContributeForm>
-        </Grid.Column>
-      </Grid.Row>
-     <Grid.Row>
-        <Grid.Column>
-          <Link route={`/campaigns/${address}/requests`}>
-            <Button primary>View Requests</Button>
-          </Link>
-        </Grid.Column>
-     </Grid.Row>
-    </Grid>
+          <Grid.Column width={6}>
+            <ContributeForm
+              minimumContribution={campaignDetails.minimumContribution}
+              address={address}
+              onContributionSuccess={loadCampaignDetails}
+            ></ContributeForm>
+          </Grid.Column>
+        </Grid.Row>
+        <Grid.Row>
+          <Grid.Column>
+            <Link route={`/campaigns/${address}/requests`}>
+              <Button primary>View Requests</Button>
+            </Link>
+          </Grid.Column>
+        </Grid.Row>
+      </Grid>
     </Layout>
   );
 };
-
 
 export default CampaignShow;

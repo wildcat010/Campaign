@@ -6,9 +6,9 @@ import web3 from "./../../../ethereum/web3";
 import { useRouter } from "next/router";
 import "semantic-ui-css/semantic.min.css";
 import { Router } from "./../../../routes";
+import { getAccounts } from "./../../../ethereum/accounts";
 
 const RequestNew = () => {
-
   const [description, setDescription] = useState("");
   const [value, setValue] = useState("");
   const [addressRecipient, setAddressRecipient] = useState("");
@@ -16,7 +16,7 @@ const RequestNew = () => {
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
-const { address } = router.query;
+  const { address } = router.query;
 
   if (!router.isReady) {
     return null; // prevent undefined address usage
@@ -24,11 +24,11 @@ const { address } = router.query;
 
   const toBytes32 = (text) => {
     return web3.utils.padRight(web3.utils.utf8ToHex(text), 64);
-  }
+  };
 
   const bytes32ToString = (bytes32Str) => {
     return web3.utils.hexToUtf8(bytes32Str).replace(/\0+$/, "");
-  }
+  };
 
   const onSubmit = async (event) => {
     event.preventDefault();
@@ -36,20 +36,14 @@ const { address } = router.query;
     setErrorMessage("");
 
     try {
-        console.log("on submit")
-
-      const accounts = await web3.eth.getAccounts();
-      console.log("account")
+      const accounts = await getAccounts();
       const campaignInstance = campaign(address);
-      console.log("campaign instance")
-
-      console.log("created")
 
       await campaignInstance.methods
         .createRequest(
           toBytes32(description),
           web3.utils.toWei(value, "wei"),
-          addressRecipient
+          addressRecipient,
         )
         .send({
           from: accounts[0],

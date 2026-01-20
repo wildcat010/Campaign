@@ -8,6 +8,7 @@ import { MessageHeader, Message } from "semantic-ui-react";
 import "semantic-ui-css/semantic.min.css"; // ✅ Semantic UI CSS
 
 import { Router } from "./../../routes";
+import { getAccounts } from "./../../ethereum/accounts";
 
 const CampaignNew = () => {
   const [minimumContribution, setMinimumContribution] = useState(100);
@@ -28,7 +29,7 @@ const CampaignNew = () => {
         throw new Error("Minimum contribution must be greater than zero");
       }
 
-      const accounts = await web3.eth.getAccounts();
+      const accounts = await getAccounts();
 
       await factory.methods
         .createCampaign(minimumContribution)
