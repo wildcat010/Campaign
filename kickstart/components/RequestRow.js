@@ -4,6 +4,7 @@ import { Table, MenuMenu, MenuItem, Menu, Button } from "semantic-ui-react";
 import { Link } from "./../routes";
 import web3 from "./../ethereum/web3";
 import { getAccounts } from "./../ethereum/accounts";
+import "semantic-ui-css/semantic.min.css"; // ✅ Semantic UI CSS
 
 const RequestRow = (props) => {
   const campaignContract = props.campaign;

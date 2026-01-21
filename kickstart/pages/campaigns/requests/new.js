@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import "semantic-ui-css/semantic.min.css";
 import { Router } from "./../../../routes";
 import { getAccounts } from "./../../../ethereum/accounts";
+import "semantic-ui-css/semantic.min.css"; // ✅ Semantic UI CSS
 
 const RequestNew = () => {
   const [description, setDescription] = useState("");

@@ -19,6 +19,7 @@ import {
   Table,
 } from "semantic-ui-react";
 import RequestRow from "./../../../components/RequestRow";
+import "semantic-ui-css/semantic.min.css"; // ✅ Semantic UI CSS
 
 const RequestIndex = () => {
   const [requests, setRequests] = useState([]);
