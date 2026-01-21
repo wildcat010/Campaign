@@ -34,7 +34,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
           action: "upload"
          
-          app_location: "./kickstart/out/index.html" # App source code path
+          app_location: "./kickstart/out"
           skip_app_build: true
 
   close_pull_request_job:
@@ -48,6 +48,7 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_DELIGHTFUL_FOREST_0C236FA03 }}
           action: "close"
+
 
 
 
